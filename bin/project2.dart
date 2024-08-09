@@ -17,6 +17,10 @@ void main() {
   books.addCourse();
 
   books.displayAll();
+
+  print("Please enter the id of the book you want to delet");
+  int bookToDelet = int.parse(stdin.readLineSync()!);
+  books.removeBooks(bookToDelet);
 }
 
 class LibraryClass {
@@ -35,6 +39,11 @@ class LibraryClass {
     }
   }
 
+  void removeBooks(int bookToDelet) {
+    library.removeWhere((element) => element.id == bookToDelet);
+    print("$bookToDelet is deleted");
+  }
+
   void addCourse([LibraryData? book]) {
     if (book == null) {
       // Generate a unique ID directly within the addCourse method
@@ -42,8 +51,12 @@ class LibraryClass {
       String id;
       bool idExists;
       do {
-        id = random.nextInt(100000).toString().padLeft(4, '0'); // Generate a random 5-digit ID
-        idExists = library.any((book) => book.id == id); // Check if the ID already exists
+        id = random
+            .nextInt(100000)
+            .toString()
+            .padLeft(4, '0'); // Generate a random 5-digit ID
+        idExists = library
+            .any((book) => book.id == id); // Check if the ID already exists
       } while (idExists);
 
       print("Enter the book title:");
