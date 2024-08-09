@@ -1,79 +1,87 @@
-import "data.dart";
+import "dart:math";
+
+import "model/library.dart";
+import "model/data.dart";
+import 'dart:io';
 
 void main() {
-  Library libraryObject = Library.fromJson(dataSet);
+  // Library libraryObject = Library.fromJson(dataSet);
 
-  for (var element in libraryObject.library) {
-    print(element.id);
-    print(element.title);
-    print(element.authors);
-    print(element.categories);
-    print(element.year);
-    print(element.price);
-    print(element.quantity);
-    print("-------------------------");
-  }
+  var books = LibraryClass();
+  books.coursesFromJson(dataSet);
+
+  books.displayAll();
+  print(
+      "------------------------ adding course ----------------------------------");
+
+  books.addCourse();
+
+  books.displayAll();
 }
 
-class Library {
-  late final List<LibraryData> library;
+class LibraryClass {
+  final List<LibraryData> library = [];
 
-  Library({
-    required this.library,
-  });
-
-  factory Library.fromJson(Map<String, dynamic> json) {
-    var libraryList = json["library"] as List;
-    List<LibraryData> library =
-        libraryList.map((e) => LibraryData.fromJson(e)).toList();
-    return Library(library: library);
+  void displayAll() {
+    for (var element in library) {
+      print(element.id);
+      print(element.title);
+      print(element.authors);
+      print(element.categories);
+      print(element.year);
+      print(element.price);
+      print(element.quantity);
+      print("-------------------------");
+    }
   }
 
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['library'] = library.map((e) => e.toJson()).toList();
-    return data;
+  void addCourse([LibraryData? book]) {
+    if (book == null) {
+      // Generate a unique ID directly within the addCourse method
+      final random = Random();
+      String id;
+      bool idExists;
+      do {
+        id = random.nextInt(100000).toString().padLeft(4, '0'); // Generate a random 5-digit ID
+        idExists = library.any((book) => book.id == id); // Check if the ID already exists
+      } while (idExists);
+
+      print("Enter the book title:");
+      String title = stdin.readLineSync()!;
+
+      print("Enter the authors use separat (author-author):");
+      List<String> authors = stdin.readLineSync()!.split(',');
+
+      print("Enter the categories use separated (categorie-categorie):");
+      List<String> categories = stdin.readLineSync()!.split(',');
+
+      print("Enter the year of publication:");
+      int year = int.parse(stdin.readLineSync()!);
+
+      print("Enter the quantity:");
+      int quantity = int.parse(stdin.readLineSync()!);
+
+      print("Enter the price:");
+      double price = double.parse(stdin.readLineSync()!);
+
+      book = LibraryData(
+        id: id,
+        title: title,
+        authors: authors.map((author) => author.trim()).toList(),
+        categories: categories.map((category) => category.trim()).toList(),
+        year: year,
+        quantity: quantity,
+        price: price,
+      );
+    }
+
+    library.add(book);
+    print("Course added");
   }
-}
 
-class LibraryData {
-  late final String id;
-  late final String title;
-  late final List<String> authors;
-  late final List<String> categories;
-  late final int year;
-  late final int quantity;
-  late final double price;
-
-  LibraryData({
-    required this.id,
-    required this.title,
-    required this.authors,
-    required this.categories,
-    required this.year,
-    required this.quantity,
-    required this.price,
-  });
-
-  LibraryData.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    title = json['title'];
-    authors = List.from(json['authors']);
-    categories = List.from(json['categories']);
-    year = json['year'];
-    quantity = json['quantity'];
-    price = json['price'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['id'] = id;
-    data['title'] = title;
-    data['authors'] = authors;
-    data['categories'] = categories;
-    data['year'] = year;
-    data['quantity'] = quantity;
-    data['price'] = price;
-    return data;
+  void coursesFromJson(Map<String, dynamic> jsonData) {
+    final courseList = jsonData['library'] as List;
+    library
+        .addAll(courseList.map((json) => LibraryData.fromJson(json)).toList());
   }
 }
