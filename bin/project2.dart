@@ -4,62 +4,112 @@ import "model/library.dart";
 import "model/data.dart";
 import 'dart:io';
 
+final Map<String, List<Map<String, dynamic>>> allUserReceipts = {};
 void main() {
   var books = LibraryClass();
   books.coursesFromJson(dataSet);
   // Library libraryObject = Library.fromJson(dataSet);
-  print("welcome");
-  print("who is using the program");
-  print("1-Admin      2-Customer");
-  int user = int.parse(stdin.readLineSync()!);
-
   while (true) {
+    print("welcome");
+    print("who is using the program");
+    print("1-Admin      2-Customer");
+    int user = int.parse(stdin.readLineSync()!);
+
     if (user == 1) {
-      print("1-Display the library information");
-      print("2-Add new book to the library");
-      print("3-Remove book from the library");
-      print("4-View all receipt");
-      int input = int.parse(stdin.readLineSync()!);
-      switch (input) {
-        case 1:
-          books.displayAll();
+      while (true) {
+        print("1-Display the library information");
+        print("2-Add new book to the library");
+        print("3-Remove book from the library");
+        print("4-View all receipt");
+        print("5-Exit");
+        int input = int.parse(stdin.readLineSync()!);
+        switch (input) {
+          case 1:
+            books.displayAll();
 
-        case 2:
-          print(
-              "--------------------- adding course --------------------------");
-          books.addCourse();
+          case 2:
+            print(
+                "--------------------- adding course --------------------------");
+            books.addCourse();
 
-        case 3:
-          print(
-              "--------------------- Removing course ------------------------------");
-          print("Please enter the id of the book you want to delet");
-          String bookToDelet = stdin.readLineSync()!;
-          books.removeBooks(bookToDelet);
+          case 3:
+            print(
+                "--------------------- Removing course ------------------------------");
+            print("Please enter the id of the book you want to delet");
+            String bookToDelet = stdin.readLineSync()!;
+            books.removeBooks(bookToDelet);
+          case 4:
+            books.allUsersRecept();
+          case 5:
+            break;
+          default:
+            print("Please enter a valid input");
+        }
+        if (input == 5) {
+          break;
+        }
       }
     } else if (user == 2) {
-      print("1-Display the library information");
-      print("2-Buy book from the library");
-      print("3-view the view the receipt for purchase");
-      int input = int.parse(stdin.readLineSync()!);
+      print("Please enter your name");
+      String userName = stdin.readLineSync()!;
+      String userID = generateUserID(userName);
 
-      switch (input) {
-        case 1:
-          books.displayAll();
-        case 2:
-          books.buyBook();
+      while (true) {
+        print("1-Display the library information");
+        print("2-Buy book from the library");
+        print("3-view the view the receipt for purchase");
+        print("4-Exit");
+        int input = int.parse(stdin.readLineSync()!);
 
-        default:
-          print("Please enter a correct number");
+        switch (input) {
+          case 1:
+            books.displayAll();
+          case 2:
+            books.buyBook(userID);
+          case 3:
+            books.receiptDisplay(userID);
+          case 4:
+            break;
+          default:
+            print("Please enter a correct number");
+        }
+        if (input == 4) {
+          break;
+        }
       }
     }
   }
 }
 
+String generateUserID(String userName) {
+  final randomId = Random();
+  return "$userName-${randomId.nextInt(9999)}";
+}
+
 class LibraryClass {
   final List<LibraryData> library = [];
   final List<Map<String, dynamic>> receipt = [];
+  final List<Map<String, dynamic>> allRecept = [];
 
-  void buyBook() {
+  void allUsersRecept() {
+    if (allRecept.isEmpty) {
+      print("there is no resepts yet");
+    }
+    allUserReceipts.forEach((userID, receipts) {
+      print("Receipts for user: $userID");
+      for (var i = 0; i < receipts.length; i++) {
+        var receipt = receipts[i];
+        print("Receipt ${i + 1}:");
+        print("Title: ${receipt['title']}");
+        print("Quantity: ${receipt['quantity']}");
+        print("Total Price: \$${receipt['totalPrice']}");
+        print("Date: ${receipt['date']}");
+        print("-------------------------");
+      }
+    });
+  }
+
+  void buyBook(String userID) {
     displayAll(); // Show all available books
     print("Enter the ID of the book you want to buy:");
     String bookId = stdin.readLineSync()!;
@@ -93,18 +143,41 @@ class LibraryClass {
     double totalPrice = quantityToBuy * book.price;
 
     // Store the receipt information
-    receipt.add({
+    var currentReceipt = {
       "title": book.title,
       "quantity": quantityToBuy,
       "totalPrice": totalPrice,
       "date": DateTime.now(),
-    });
+    };
+
+    if (!allUserReceipts.containsKey(userID)) {
+      allUserReceipts[userID] = [];
+    }
+    allUserReceipts[userID]!.add(currentReceipt);
 
     print(
         "You have successfully purchased $quantityToBuy copies of '${book.title}' for \$${totalPrice.toStringAsFixed(2)}.");
 
     // Update the original dataSet
     dataSet['library'] = library.map((book) => book.toJson()).toList();
+  }
+
+  void receiptDisplay(String userID) {
+    double total = 0;
+    if (!allUserReceipts.containsKey(userID) ||
+        allUserReceipts[userID]!.isEmpty) {
+      print("You did not buy anything yet. Try to buy one of the books.");
+    } else {
+      var receipts = allUserReceipts[userID]!;
+      for (var element in receipts) {
+        print(element["title"]);
+        print(element["quantity"]);
+        print(element["totalPrice"]);
+        print(element["date"]);
+        total += element["totalPrice"];
+      }
+      print("the total is $total");
+    }
   }
 
   void displayAll() {
@@ -125,7 +198,7 @@ class LibraryClass {
   //   print("$bookToDelet is deleted");
   // }
 
-  void removeBooks(bookToDelete) {
+  void removeBooks(String bookToDelete) {
     // Check if the book with the given ID exists
     final bookExists = library.any((element) => element.id == bookToDelete);
 
