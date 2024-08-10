@@ -6,9 +6,8 @@ import 'library.dart';
 class LibraryClass {
   final Map<String, List<Map<String, dynamic>>> allUserReceipts = {};
   final List<LibraryData> library = [];
-  // final List<Map<String, dynamic>> receipt = [];
 
-
+// to show all the availabel recept
   void allUsersRecept() {
     if (allUserReceipts.isEmpty) {
       print("There is no resepts yet");
@@ -27,6 +26,7 @@ class LibraryClass {
     });
   }
 
+//buy book from the availabel list 
   void buyBook(String userID) {
     displayAll(); // Show all available books
     print("Enter the ID of the book you want to buy:");
@@ -57,7 +57,7 @@ class LibraryClass {
     // Update the book's quantity
     book.quantity -= quantityToBuy;
 
-    // Calculate total price
+    // Calculate total 
     double totalPrice = quantityToBuy * book.price;
 
     // Store the receipt information
@@ -79,7 +79,6 @@ class LibraryClass {
     // Update the original dataSet
     dataSet['library'] = library.map((book) => book.toJson()).toList();
   }
-
 
 
 //The recept display function
@@ -195,6 +194,7 @@ class LibraryClass {
     }
   }
 
+//from json to update the data set
   void coursesFromJson(Map<String, dynamic> jsonData) {
     final courseList = jsonData['library'] as List;
     library

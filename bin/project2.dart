@@ -6,7 +6,7 @@ import "model/libraryclass.dart";
 void main() {
   var books = LibraryClass();
   books.coursesFromJson(dataSet);
-  // Library libraryObject = Library.fromJson(dataSet);
+
   while (true) {
     print("\n---------------------------------------------------");
     print("--------------------- Welcome ---------------------");
@@ -15,12 +15,14 @@ void main() {
     print("Who is using the program?");
     print("1-Admin    2-Customer    3-Exit");
     int user = 0;
+    //to make sure no errors happen 
     try {
       user = int.parse(stdin.readLineSync()!);
     } catch (e) {
       print(e);
     }
     if (user == 1) {
+      //to the Admin
       while (true) {
         print("\n1-Display the library information");
         print("2-Add new book to the library");
@@ -59,6 +61,7 @@ void main() {
           break;
         }
       }
+      //to the customer
     } else if (user == 2) {
       print("Please enter your name");
       String userName = stdin.readLineSync()!;
@@ -67,7 +70,7 @@ void main() {
       while (true) {
         print("1-Display the library information");
         print("2-Buy book from the library");
-        print("3-view the view the receipt for purchase");
+        print("3-View the receipt for purchase");
         print("4-Exit");
         int input = int.parse(stdin.readLineSync()!);
 
@@ -91,12 +94,13 @@ void main() {
       print("----> Thank you for using library system <----");
       print("-----------> See you soon good bay <----------");
       exit(0);
-    } else {
+    } //any other invalid input
+    else {
       print("Enter valid input");
     }
   }
 }
-
+//to generate the user id 
 String generateUserID(String userName) {
   final randomId = Random();
   return "$userName-${randomId.nextInt(9999)}";
